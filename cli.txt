@@ -1,0 +1,161 @@
+
+
+Docker Compose
+==============
+
+Install:
+	apm install docker
+	apt install docker-compose-v2
+
+
+Basic Operation:
+	docker compose up
+	docker compose -f filename.yaml up
+	docker compose down
+	docker compose logs
+	docker compose ps/ls
+
+
+Docker
+======
+
+docker ps
+docker ps --all
+docker images
+docker pull postgresql:17.2
+docker top <name> - List processes in VM
+
+docker network ls - Show network
+
+Execute command in a running container:
+	docker exec -it mycontainer sh
+	docker exec -it mycontainer sh -c "pwd"
+
+docker container attach
+
+
+Debugging Docker
+================
+
+docker container ls --all
+docker logs <container>
+docker stats <container>
+docker exec -it <container> /bin/bash
+docker exec -it root-naviserver-1 /bin/bash
+
+Copy file from VM to host:
+	docker cp <containerId>:/file/path/within/container /host/path/target
+	docker cp project-open-v52-naviserver-1:/scripts/container-setup-openacs.sh .
+
+
+
+PostgreSQL Image
+================
+
+Run PostgreSQL in the background directly on the host:
+	docker run --net=host --name mypg -e POSTGRES_PASSWORD=secret -d postgres
+
+With port mapped:
+	docker run -d -p 5432:5432 --name mypg -e POSTGRES_PASSWORD=secret postgres
+
+Create user and database "projop":
+	docker run -d -p 5432:5432 --name mypg -e POSTGRES_USER=projop -e POSTGRES_PASSWORD=projop -e POSTGRES_DB=projop postgres
+
+Run psql in a second docker image:
+    	docker run -it --rm --network some-network postgres psql -h mypg -U postgres
+
+
+
+NGINX Image
+===========
+
+docker pull nginx:latest
+docker run --name mynginx -d -p 80:80 nginx
+ufw allow 80/tcp
+
+
+Naviserver Image
+================
+
+docker run -d --net=host --name myns gustafn/naviserver-pg
+
+
+OpenACS Image
+=============
+
+
+
+
+
+Dockerfile
+==========
+
+Simple dockerfile to launch a program ("ab")
+
+FROM ubuntu:latest
+RUN apt-get update &amp;&amp; \
+    apt-get install -y apache2-utils &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+CMD ab
+
+To build the image use:
+   	docker build -t ab .
+To run, the 2nd "ab" overrides the CMD:	
+	docker run ab ab http://test.com/
+
+
+Use instead of CMD the following:
+ENTRYPOINT ["ab"]
+Now to run the ab command with parameter:
+       docker run ab http://bencane.com/
+
+docker exec -it /bin/bash root-naviserver-1
+docker exec -it /bin/sh root-naviserver-1
+docker exec -it 3cdffc0489f5 /bin/bash
+docker exec -it mynginx bash
+docker exec -it mynginx bash -c "pwd"
+docker exec -it mynginx sh -c "pwd"
+docker exec -it root-naviserver-1 /usr/bin/find
+docker exec -it root-naviserver-1 /usr/bin/find 
+
+docker image delete postgres:latest
+docker image help
+docker image load gustafn/openacs
+docker image prune
+docker image rm gustafn/naviserver
+docker image rm gustafn/naviserver
+docker image rm hello-world
+docker image rm postgres:latest
+docker image rm thirsty_antonelli
+docker image save gustafn/naviserver-pg -o naviserver-ng.tar
+docker pull gustafn/naviserver-pg
+docker pull nginx
+docker pull nginx:latest
+docker pull postgres
+docker pull postgres:17.2
+docker run --name mynginx -d -p 80:80 nginx
+docker run --name mypg -e POSTGRES_PASSWORD=secret -d postgres
+docker run --name pg -e POSTGRES_PASSWORD=secret -d postgres
+docker run --name pg -e POSTGRES_PASSWORD=secret -d postgres
+docker run --net=host --name myns gustafn/naviserver-pg
+docker run --net=host --name myns gustafn/naviserver-pg
+docker run --net=host --name myns naviserver-pg
+docker run --net=host --name mypg -e POSTGRES_PASSWORD=secret -d postgres
+docker run --net=host --name mypg -e POSTGRES_PASSWORD=secret -d postgres
+docker run --net=host --name mypg -e POSTGRES_PASSWORD=secret -d postgres
+docker run --net=host --name mypg -e POSTGRES_PASSWORD=secret -d postgres
+docker run --net=host mypg
+docker run --net=host postgres
+docker run --rm -it --name myns bash
+docker run --rm -it myns bash
+docker run -d --net=host --name myns gustafn/naviserver-pg
+docker run -d --net=host -p 5432:5432 --name mypg -e POSTGRES_PASSWORD=secret postgres
+docker run -d -p 5432:5432 --name mypg -e POSTGRES_PASSWORD=secret postgres
+docker run -d -p 5432:5432 --name mypg -e POSTGRES_USER=projop -e POSTGRES_PASSWORD=projop -e POSTGRES_DB=projop postgres
+docker run -it --rm --network host postgres psql
+docker run -it --rm --network host postgres psql -h localhost
+docker run -it --rm --network host postgres psql -h mypg -U postgres
+docker run -it --rm --network host postgres psql -h some-postgres -U postgres
+docker run -it --rm --network some-network postgres psql -h mypg -U postgres
+docker run -it --rm --network some-network postgres psql -h some-postgres -U postgres
+docker run -it jolly_taussig /bin/bash

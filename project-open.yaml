@@ -1,0 +1,100 @@
+# ------------------------------------------------------------------
+# Docker compose file for ]project-open[ V5.2
+#
+# Based on compose file from Gustaf Neumann https://hub.docker.com/r/gustafn/openacs
+# This variant maintained by Frank Bergmann (frank.bergmann@project-open.com)
+# ------------------------------------------------------------------
+
+# ------------------------------------------------------------------
+# ToDo:
+# - Replace gustafn/openacs:latest-bookworm by a specific version
+# - Remove outcommented lines from Gustaf
+# Done:
+# - Added healthchecks
+# ------------------------------------------------------------------
+
+
+services:
+  naviserver:
+    image: gustafn/openacs:latest-bookworm
+    restart: unless-stopped
+    command: >
+      /bin/sh -c "
+        /bin/bash /scripts/container-setup-openacs.sh \\
+        && /usr/local/ns/bin/nsd -f -t ${nsdconfig:-/usr/local/ns/conf/openacs-config.tcl} -u nsadmin -g nsadmin 
+      "  
+    volumes:
+      #- ${config_dir}/openacs-config.tcl:/usr/local/ns/conf/openacs-config.tcl
+      #- /var/www/oacs-5-10/openacs-4/:/var/www/${service:-openacs}
+      #- ${config_dir}/${install_file:-openacs-plain-install.xml}:/var/www/openacs/install.xml
+
+      # The main installation of OpenACS/]project-open[
+      - oacs_data:/var/www/${service:-openacs}
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Fraber 2024-12-10: Added dependency
+    depends_on:
+      - postgres
+    ports:
+      # Provide IP address and ports for your application if needed.
+      # By default, the local IP address and an ephemeral port are used.
+      - ${ipaddress:-127.0.0.1}:${httpport:-}:8080
+      - ${ipaddress:-127.0.0.1}:${httpsport:-}:8443
+    secrets:
+        - psql_password      
+    environment:
+      - TZ=${TZ:-Europe/Vienna}
+      - LD_PRELOAD=${LD_PRELOAD:-}
+      - oacs_httpport=8080
+      - oacs_httpsport=8443
+      - oacs_ipaddress=0.0.0.0
+      - oacs_hostname=${hostname:-localhost}
+      - oacs_server=${service:-oacs-5-10}
+      - oacs_db_name=${service:-oacs-5-10}
+      - oacs_db_host=${db_host:-host.docker.internal}
+      - oacs_db_port=${db_port:-5432}
+      - oacs_db_user=${db_user:-openacs}
+      - oacs_db_passwordfile=/run/secrets/psql_password
+      - oacs_serverroot=/var/www/openacs
+      - oacs_certificate=${certificate:-/var/www/openacs/etc/certfile.pem}
+      - oacs_logroot=${logroot:-/var/www/openacs/log}
+      - oacs_tag=${oacs_tag:-oacs-5-10}
+      - oacs_clusterSecret=${clusterSecret:-}
+      - oacs_paramterSecret=${parameterSecret:-}
+      - system_pkgs=${system_pkgs:-imagemagick}
+    healthcheck:
+        test: /usr/bin/curl --fail http://localhost:8080/ || exit 1
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 60s
+
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    user: postgres
+    secrets:
+        - psql_password
+    environment: 
+        POSTGRES_PASSWORD_FILE: /run/secrets/psql_password
+        POSTGRES_USER: ${db_user:-openacs}
+        POSTGRES_DB: ${service:-oacs-5-10}
+    #expose:
+        #- ${db_port:-5432}:5432
+    volumes:
+        - db_data:/var/lib/postgresql/data
+        #- ${config_dir}/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${db_user:-openacs} --dbname ${service:-oacs-5-10}"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 60s
+
+volumes:
+  db_data:
+  oacs_data:
+
+secrets:
+  psql_password:
+    environment: "PSQL_PASSWORD"
+    #file: ${config_dir}/secrets/psql_password.txt
