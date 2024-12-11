@@ -13,14 +13,18 @@
 # - Added healthchecks
 # ------------------------------------------------------------------
 
+version: '5.2'
 
 services:
-  naviserver:
-    image: gustafn/openacs:latest-bookworm
+  projop:
+    # image: gustafn/openacs:latest-bookworm
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     command: >
       /bin/sh -c "
-        /bin/bash /scripts/container-setup-openacs.sh \\
+        /bin/bash /scripts/container-setup-project-open.sh \\
         && /usr/local/ns/bin/nsd -f -t ${nsdconfig:-/usr/local/ns/conf/openacs-config.tcl} -u nsadmin -g nsadmin 
       "  
     volumes:
@@ -41,6 +45,9 @@ services:
       - ${ipaddress:-127.0.0.1}:${httpsport:-}:8443
     secrets:
         - psql_password      
+    deploy:
+      labels:
+        - "com.project-open.deployGroup=project-open"
     environment:
       - TZ=${TZ:-Europe/Vienna}
       - LD_PRELOAD=${LD_PRELOAD:-}
@@ -74,7 +81,8 @@ services:
     user: postgres
     secrets:
         - psql_password
-    environment: 
+    environment:
+        # Todo: Not sure where psql_password comes from. "secrets:" below?
         POSTGRES_PASSWORD_FILE: /run/secrets/psql_password
         POSTGRES_USER: ${db_user:-openacs}
         POSTGRES_DB: ${service:-oacs-5-10}
@@ -83,6 +91,9 @@ services:
     volumes:
         - db_data:/var/lib/postgresql/data
         #- ${config_dir}/initdb:/docker-entrypoint-initdb.d
+    deploy:
+      labels:
+        - "com.project-open.deployGroup=project-open"
     healthcheck:
         test: ["CMD-SHELL", "pg_isready -U ${db_user:-openacs} --dbname ${service:-oacs-5-10}"]
         interval: 10s
