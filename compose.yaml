@@ -13,8 +13,6 @@
 # - Added healthchecks
 # ------------------------------------------------------------------
 
-version: '5.2'
-
 services:
   projop:
     # image: gustafn/openacs:latest-bookworm
@@ -29,7 +27,7 @@ services:
       "  
     volumes:
       #- ${config_dir}/openacs-config.tcl:/usr/local/ns/conf/openacs-config.tcl
-      #- /var/www/oacs-5-10/openacs-4/:/var/www/${service:-openacs}
+      #- /var/www/projop/openacs-4/:/var/www/${service:-openacs}
       #- ${config_dir}/${install_file:-openacs-plain-install.xml}:/var/www/openacs/install.xml
 
       # The main installation of OpenACS/]project-open[
@@ -55,8 +53,8 @@ services:
       - oacs_httpsport=8443
       - oacs_ipaddress=0.0.0.0
       - oacs_hostname=${hostname:-localhost}
-      - oacs_server=${service:-oacs-5-10}
-      - oacs_db_name=${service:-oacs-5-10}
+      - oacs_server=${service:-projop}
+      - oacs_db_name=${service:-projop}
       - oacs_db_host=${db_host:-host.docker.internal}
       - oacs_db_port=${db_port:-5432}
       - oacs_db_user=${db_user:-openacs}
@@ -64,7 +62,7 @@ services:
       - oacs_serverroot=/var/www/openacs
       - oacs_certificate=${certificate:-/var/www/openacs/etc/certfile.pem}
       - oacs_logroot=${logroot:-/var/www/openacs/log}
-      - oacs_tag=${oacs_tag:-oacs-5-10}
+      - oacs_tag=${oacs_tag:-projop}
       - oacs_clusterSecret=${clusterSecret:-}
       - oacs_paramterSecret=${parameterSecret:-}
       - system_pkgs=${system_pkgs:-imagemagick}
@@ -82,20 +80,16 @@ services:
     secrets:
         - psql_password
     environment:
-        # Todo: Not sure where psql_password comes from. "secrets:" below?
         POSTGRES_PASSWORD_FILE: /run/secrets/psql_password
         POSTGRES_USER: ${db_user:-openacs}
-        POSTGRES_DB: ${service:-oacs-5-10}
-    #expose:
-        #- ${db_port:-5432}:5432
+        POSTGRES_DB: ${service:-projop}
+    expose:
+        - ${db_port:-5432}:5432
     volumes:
         - db_data:/var/lib/postgresql/data
-        #- ${config_dir}/initdb:/docker-entrypoint-initdb.d
-    deploy:
-      labels:
-        - "com.project-open.deployGroup=project-open"
+        - ./project-open-v52.sql:/docker-entrypoint-initdb.d/project-open-v52.sql
     healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U ${db_user:-openacs} --dbname ${service:-oacs-5-10}"]
+        test: ["CMD-SHELL", "pg_isready -U ${db_user:-openacs} --dbname ${service:-projop}"]
         interval: 10s
         timeout: 5s
         retries: 3
@@ -108,4 +102,3 @@ volumes:
 secrets:
   psql_password:
     environment: "PSQL_PASSWORD"
-    #file: ${config_dir}/secrets/psql_password.txt

@@ -6,12 +6,17 @@
 # Released under MIT license
 # ------------------------------------------------------------------
 
+docker builder prune --force
+
 docker container rm openacs-naviserver-1
 docker container rm openacs-postgres-1
 docker container rm project-open-v52-naviserver-1
 docker container rm project-open-v52-projop-1
 docker container rm project-open-v52-postgres-1
 # docker container prune --force
+
+docker image rm project-open-v52-projop
+
 
 docker volume rm --force openacs_db_data
 docker volume rm --force openacs_oacs_data
