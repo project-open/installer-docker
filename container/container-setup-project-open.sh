@@ -78,6 +78,30 @@ source /usr/local/ns/lib/nsConfig.sh
 # alpine=0
 # wolfi=0
 
+
+# ------------------------------------------------------------------
+# Make sure the postgres container accepts connections
+wait_for_postgres() {
+        echo "====== Wait for PG: Waiting up to a minute for PostgreSQL to become available"
+	DB_RETRY_COUNT=0
+	DB_RETRY_MAX=600
+	DB_RETRY_INTERVAL=0.1
+        echo "====== Wait for PG: pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null"
+	while ! pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null; do
+	    DB_RETRY_COUNT=$(($DB_RETRY_COUNT + 1))
+	    if [ $DB_RETRY_COUNT -ge $DB_RETRY_MAX ]; then
+		echo "====== Wait for PG: PostgreSQL not ready after ${DB_RETRY_MAX} attempts. Exiting."
+		exit 1
+	    fi
+	    echo "====== Wait for PG: Waiting for PostgreSQL to be ready, attempt: ${DB_RETRY_COUNT}"
+	    sleep "${DB_RETRY_INTERVAL}"
+	done
+	echo "====== Wait for PG: PostgreSQL ready now with attempt: ${DB_RETRY_COUNT}"
+}
+
+
+
+
 # ------------------------------------------------------------------
 # Check the database password passed on from 'docker compose'
 if [ -e /run/secrets/psql_password ] ; then
@@ -88,6 +112,8 @@ else
     echo "====== Did not find /run/secrets/psql_password, exiting"
     exit 1
 fi
+
+
 
 # ------------------------------------------------------------------
 # Check if we need to setup the containers
@@ -176,39 +202,14 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
         echo "====== DB setup: Use the Database in a 'postgres' container"
 	echo "====== DB setup:" db_admin_user=$db_admin_user db_dir=$db_dir oacs_db_name=$oacs_db_name oacs_db_host=$oacs_db_host oacs_db_user=$oacs_db_user
 	# We assume that this is a fresh DB that needs to be set up
-        #
-        # Configure the database in the DB container
-        #
+
         echo "====== DB setup: Configuration variables"
         env | sort
 
+	# Make sure the postgres container has finished init
+	wait_for_postgres
+	
 	# ------------------------------------------------------------------
-        echo "====== DB setup: Waiting up to a minute for PostgreSQL to become available"
-	DB_RETRY_COUNT=0
-	DB_RETRY_MAX=600
-	DB_RETRY_INTERVAL=0.1
-        echo "====== DB setup: pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null"
-	while ! pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null; do
-	    DB_RETRY_COUNT=$(($DB_RETRY_COUNT + 1))
-	    if [ $DB_RETRY_COUNT -ge $DB_RETRY_MAX ]; then
-		echo "====== DB setup: PostgreSQL not ready after ${DB_RETRY_MAX} attempts. Exiting."
-		exit 1
-	    fi
-	    echo "====== DB setup: Waiting for PostgreSQL to be ready, attempt: ${DB_RETRY_COUNT}"
-	    sleep "${DB_RETRY_INTERVAL}"
-	done
-	echo "====== DB setup: PostgreSQL ready now with attempt: ${DB_RETRY_COUNT}"
-
-        echo "====== DB setup: Checking if oacs_db_user ${oacs_db_user} exists in db..."
-        echo "====== DB setup: PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${oacs_db_user}'\""
-        dbuser_exists=$(PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc "SELECT 1 FROM pg_roles WHERE rolname='${oacs_db_user}'")
-        if [ "$dbuser_exists" != "1" ] ; then
-            echo "====== DB setup: Creating oacs_db_user ${oacs_db_user}."
-            createuser -h ${oacs_db_host} -p ${oacs_db_port} -s -d ${oacs_db_user}
-	else
-            echo "====== DB setup: Already exists: oacs_db_user=${oacs_db_user}."
-        fi
-
         echo "====== DB setup: Checking if database with name ${oacs_db_name} exists..."
         echo "====== DB setup: PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'\""
         db_exists=$(PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc "SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'")
@@ -222,13 +223,25 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
             echo "====== DB setup: Already exists: oacs_db_name=${oacs_db_name}"
         fi
 
+	# ------------------------------------------------------------------
+        echo "====== DB setup: Checking if data model already loaded..."
+        echo "====== DB setup: PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'\""
+        model_exists=$(PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc "SELECT count(*) FROM pg_catalog.pg_tables where tablename = 'users'")
 
-
+	if [ "$model_exists" != "1" ] ; then
+            echo "====== DB setup: Data-model does not exist (${model_exists}), loading..."
+	    # Redirect STDOUT to /tmp/project-open-v52.log, so we should only see errors in the logs:
+            gunzip < project-open-v52.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} > /tmp/project-open-v52.log
+	else
+            echo "====== DB setup: Data-model already exists: model_exists=${model_exists}"
+        fi
 	
     fi
 
 else
     echo "====== Not first container startup"
+    # Make sure the postgres container has finished init
+    wait_for_postgres
 fi
 
 #
@@ -237,8 +250,10 @@ fi
 echo "====== Collect docker daemon data from /var/run/docker.soc and save in /scripts/docker.config"
 curl -s --unix-socket /var/run/docker.sock -o /scripts/docker.config http://localhost/containers/${HOSTNAME}/json
 
-echo "====== Running /scripts/docker-setup.tcl"
+echo "====== Running /scripts/docker-setup.tcl, creating /script/docker-dict.tcl"
 /usr/local/ns/bin/tclsh /scripts/docker-setup.tcl
 ls -ltr /scripts/
 
 echo "====== container-setup-openacs.sh finished"
+# After this, compose.yaml will continue with the following command:
+# /usr/local/ns/bin/nsd -f -t ${nsdconfig:-/usr/local/ns/conf/openacs-config.tcl} -u nsadmin -g nsadmin

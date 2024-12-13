@@ -23,6 +23,9 @@ COPY container/nsConfig.sh /usr/local/ns/lib/nsConfig.sh
 # Copy the openacs folder with www, etc and other files
 COPY openacs /var/www/openacs
 
+# Copy the ]po[ data-model
+COPY project-open-v52.sql.gz /var/www/openacs/project-open-v52.sql.gz
+
 # Copy the packages folder with the actual ]po[ code
 COPY openacs-4/packages /var/www/openacs/packages
 

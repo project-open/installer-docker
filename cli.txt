@@ -1,3 +1,12 @@
+]project-open[ Installer
+
+Access PostgreSQL psql:
+	PGPASSWORD=<secret> docker exec -it project-open-v52-postgres-1 psql -U projop openacs
+
+Access ]po[ shell:
+	docker exec -it project-open-v52-projop-1 /bin/bash
+
+
 
 
 Docker Compose
@@ -108,6 +117,63 @@ Use instead of CMD the following:
 ENTRYPOINT ["ab"]
 Now to run the ab command with parameter:
        docker run ab http://bencane.com/
+
+
+
+# ----------------------------------------------------------------
+# Submodules
+
+# New clone of packages directory 
+git clone https://gitlab.project-open.net/project-open/packages.git
+git switch cust-cosine
+git submodule update --recursive --init
+
+# Deploy pre-commit hook into all submodules
+cd ~/packages/; git submodule foreach 'cp ~/packages/tools/pre-commit ~/packages/.git/modules/$name/hooks/'
+cd ~/packages/; git submodule foreach 'chmod ug+x ~/packages/.git/modules/$name/hooks/pre-commit'
+
+# Add a new submodule
+git clone https://gitlab.project-open.net/project-open/upgrade-5.0-5.1.git
+
+
+# ----------------------------------------------------------------
+# General
+
+# Undo last commit
+git reset HEAD~
+
+[cosine@project-open-v50 tools]$ clear; cat cli.txt
+
+# Reference of some more complex command line instructions
+# Frank Bergmann (frank.bergmann@project-open.com)
+
+
+# ----------------------------------------------------------------
+# Submodules
+
+# New clone of packages directory 
+git clone https://gitlab.project-open.net/project-open/packages.git
+git switch cust-cosine
+git submodule update --recursive --init
+
+# Deploy pre-commit hook into all submodules
+cd ~/packages/; git submodule foreach 'cp ~/packages/tools/pre-commit ~/packages/.git/modules/$name/hooks/'
+cd ~/packages/; git submodule foreach 'chmod ug+x ~/packages/.git/modules/$name/hooks/pre-commit'
+
+# Add a new submodule
+git clone https://gitlab.project-open.net/project-open/upgrade-5.0-5.1.git
+
+
+# ----------------------------------------------------------------
+# General
+
+# Undo last commit
+git reset HEAD~
+
+
+
+# ----------------------------------------------------------------
+# From history:
 
 docker exec -it /bin/bash root-naviserver-1
 docker exec -it /bin/sh root-naviserver-1
