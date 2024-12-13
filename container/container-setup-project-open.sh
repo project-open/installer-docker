@@ -78,10 +78,20 @@ source /usr/local/ns/lib/nsConfig.sh
 # alpine=0
 # wolfi=0
 
+# ------------------------------------------------------------------
+# Check the database password passed on from 'docker compose'
+if [ -e /run/secrets/psql_password ] ; then
+    db_password=$(cat /run/secrets/psql_password)
+    echo "====== Found /run/secrets/psql_password: SET db_password=${db_password}"
+else
+    db_password="secret"
+    echo "====== Did not find /run/secrets/psql_password, exiting"
+    exit 1
+fi
 
+# ------------------------------------------------------------------
+# Check if we need to setup the containers
 CONTAINER_ALREADY_STARTED="/CONTAINER_ALREADY_STARTED_PLACEHOLDER"
-
-
 if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
     touch $CONTAINER_ALREADY_STARTED
     echo "====== First container startup"
@@ -143,16 +153,16 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
     ls -l ${oacs_serverroot}/packages
 
     
-    #
-    # Now we have to check, whether we have to create the database
+    # ------------------------------------------------------------------
+    # Now we have to check whether we have to create the database
     #
     echo "====== base-image '$base_image'"
 
-    echo "====== Use PostgreSQL"
+    echo "====== DB setup: Use PostgreSQL"
     if [ -e /usr/local/ns/bin/nsdbpg.so ] ; then
-        echo "====== PostgreSQL library nsdbpg.so exists"
+        echo "====== DB setup: PostgreSQL library nsdbpg.so exists"
     else
-        echo "====== PostgreSQL library nsdbpg.so does NOT exist"
+        echo "====== DB setup: PostgreSQL library nsdbpg.so does NOT exist"
     fi
 
     # db_admin_user=${db_admin_user:-postgres}
@@ -161,7 +171,7 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
 
     if [ "$oacs_db_host" = "host.docker.internal" ] ; then
         echo "====== DB setup: Use the Database on the docker host"
-        # We assume, the DB is created and already set up
+        # We assume that the DB is created and already set up
     else
         echo "====== DB setup: Use the Database in a 'postgres' container"
 	echo "====== DB setup:" db_admin_user=$db_admin_user db_dir=$db_dir oacs_db_name=$oacs_db_name oacs_db_host=$oacs_db_host oacs_db_user=$oacs_db_user
@@ -172,10 +182,11 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
         echo "====== DB setup: Configuration variables"
         env | sort
 
-        echo "====== DB setup: Waiting for PostgreSQL to become available"
+	# ------------------------------------------------------------------
+        echo "====== DB setup: Waiting up to a minute for PostgreSQL to become available"
 	DB_RETRY_COUNT=0
-	DB_RETRY_MAX=60
-	DB_RETRY_INTERVAL=1
+	DB_RETRY_MAX=600
+	DB_RETRY_INTERVAL=0.1
         echo "====== DB setup: pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null"
 	while ! pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null; do
 	    DB_RETRY_COUNT=$(($DB_RETRY_COUNT + 1))
@@ -189,34 +200,35 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
 	echo "====== DB setup: PostgreSQL ready now with attempt: ${DB_RETRY_COUNT}"
 
         echo "====== DB setup: Checking if oacs_db_user ${oacs_db_user} exists in db..."
-        echo "====== DB setup: psql -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${oacs_db_user}'\""
-        dbuser_exists=$(psql -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${oacs_db_user}'\")
+        echo "====== DB setup: PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${oacs_db_user}'\""
+        dbuser_exists=$(PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc "SELECT 1 FROM pg_roles WHERE rolname='${oacs_db_user}'")
         if [ "$dbuser_exists" != "1" ] ; then
             echo "====== DB setup: Creating oacs_db_user ${oacs_db_user}."
             createuser -h ${oacs_db_host} -p ${oacs_db_port} -s -d ${oacs_db_user}
 	else
-            echo "====== DB setup: Already exists: oacs_db_user ${oacs_db_user}."
+            echo "====== DB setup: Already exists: oacs_db_user=${oacs_db_user}."
         fi
 
         echo "====== DB setup: Checking if database with name ${oacs_db_name} exists..."
-        echo "====== DB setup: psql -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'\""
-        db_exists=$(psql -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'\")
+        echo "====== DB setup: PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'\""
+        db_exists=$(PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc "SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'")
         if [ "$db_exists" != "1" ] ; then
             echo "====== DB setup: Database ${oacs_db_name} does not exist yet, creating..."
             echo "====== DB setup: createdb -h ${oacs_db_host} -p ${oacs_db_port} -E UNICODE ${oacs_db_name}"
-            createdb -h ${oacs_db_host} -p ${oacs_db_port} -E UNICODE ${oacs_db_name}
-            echo "====== DB setup: psql -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} -tAc \"create extension hstore\""
-            psql -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} -tAc \"create extension hstore\"
+            PGPASSWORD=${db_password} createdb -h ${oacs_db_host} -p ${oacs_db_port} -E UNICODE ${oacs_db_name}
+            echo "====== DB setup: psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} -tAc \"create extension hstore\""
+            PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} -tAc "create extension hstore"
+	else
+            echo "====== DB setup: Already exists: oacs_db_name=${oacs_db_name}"
         fi
+
+
+
+	
     fi
 
 else
     echo "====== Not first container startup"
-fi
-
-if [ -e /run/secrets/psql_password ] ; then
-    export db_password=$(cat /run/secrets/psql_password)
-    echo "====== found /run/secrets/psql_password: SET db_password ${db_password}"
 fi
 
 #
