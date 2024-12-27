@@ -83,20 +83,19 @@ source /usr/local/ns/lib/nsConfig.sh
 # Make sure the postgres container accepts connections
 wait_for_postgres() {
         echo "====== Wait for PG: Waiting up to a minute for PostgreSQL to become available"
-	DB_RETRY_COUNT=0
-	DB_RETRY_MAX=600
-	DB_RETRY_INTERVAL=0.1
+	wait_count=0
+	wait_max=600
         echo "====== Wait for PG: pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null"
 	while ! pg_isready -h ${oacs_db_host} -p ${oacs_db_port} 2>/dev/null; do
-	    DB_RETRY_COUNT=$(($DB_RETRY_COUNT + 1))
-	    if [ $DB_RETRY_COUNT -ge $DB_RETRY_MAX ]; then
-		echo "====== Wait for PG: PostgreSQL not ready after ${DB_RETRY_MAX} attempts. Exiting."
+	    wait_count=$(($wait_count + 1))
+	    if [ $wait_count -ge $wait_max ]; then
+		echo "====== Wait for PG: PostgreSQL not ready after ${wait_max} attempts. Exiting."
 		exit 1
 	    fi
-	    echo "====== Wait for PG: Waiting for PostgreSQL to be ready, attempt: ${DB_RETRY_COUNT}"
-	    sleep "${DB_RETRY_INTERVAL}"
+	    echo "====== Wait for PG: Waiting for PostgreSQL to be ready, attempt: ${wait_count}"
+	    sleep 0.1
 	done
-	echo "====== Wait for PG: PostgreSQL ready now with attempt: ${DB_RETRY_COUNT}"
+	echo "====== Wait for PG: PostgreSQL ready now with attempt: ${wait_count}"
 }
 
 
@@ -225,15 +224,21 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
 
 	# ------------------------------------------------------------------
         echo "====== DB setup: Checking if data model already loaded..."
-        echo "====== DB setup: PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc \"SELECT 1 FROM pg_database WHERE datname='${oacs_db_name}'\""
-        model_exists=$(PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} template1 -tAc "SELECT count(*) FROM pg_catalog.pg_tables where tablename = 'users'")
+
+	# Show pg_tbles
+        # PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} ${oacs_db_name} -tAc "SELECT * FROM pg_catalog.pg_tables"
+	
+        echo "====== DB setup: PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} ${oacs_db_name} -tAc \"SELECT count(*) FROM pg_catalog.pg_tables WHERE tablename='users'\""
+        model_exists=$(PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} ${oacs_db_name} -tAc "SELECT count(*) FROM pg_catalog.pg_tables where tablename = 'users'")
 
 	if [ "$model_exists" != "1" ] ; then
-            echo "====== DB setup: Data-model does not exist (${model_exists}), loading..."
+            echo "====== DB setup: Data-model does not exist (model_exists=${model_exists}), loading..."
 	    # Redirect STDOUT to /tmp/project-open-v52.log, so we should only see errors in the logs:
-            gunzip < project-open-v52.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} > /tmp/project-open-v52.log
+            gunzip < project-open-vanilla-v52.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} > ${oacs_serverroot}/import.project-open-v52.log
+	    # gunzip < project-open-vanilla-v52.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name}
+	    
 	else
-            echo "====== DB setup: Data-model already exists: model_exists=${model_exists}"
+            echo "====== DB setup: Data-model already exists (model_exists=${model_exists})"
         fi
 	
     fi
@@ -243,6 +248,11 @@ else
     # Make sure the postgres container has finished init
     wait_for_postgres
 fi
+
+
+# Show pg_tbles
+PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} ${oacs_db_name} -tAc "SELECT relname, n_live_tup FROM pg_stat_user_tables where n_live_tup > 0 ORDER BY relname;"
+
 
 #
 # Collect always the docker daemon data saved in /scripts/docker.config

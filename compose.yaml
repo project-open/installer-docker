@@ -30,10 +30,11 @@ services:
       #- /var/www/projop/openacs-4/:/var/www/${service:-openacs}
       #- ${config_dir}/${install_file:-openacs-plain-install.xml}:/var/www/openacs/install.xml
 
-      # The main installation of OpenACS/]project-open[
+      # Keep the main installation of ]project-open[ separate from the image
       - oacs_data:/var/www/${service:-openacs}
-      - /var/run/docker.sock:/var/run/docker.sock
-    # Fraber 2024-12-10: Added dependency
+      # Allow the container to access the docker API(?)
+
+    # Fraber 2024-12-10: Added dependency, so postgreSQL starts first
     depends_on:
       - postgres
     ports:
@@ -87,7 +88,7 @@ services:
         - ${db_port:-5432}:5432
     volumes:
         - db_data:/var/lib/postgresql/data
-        - ./project-open-v52.sql:/docker-entrypoint-initdb.d/project-open-v52.sql
+        # - ./project-open-vanilla-v52.sql.gz:/docker-entrypoint-initdb.d/project-open-vanilla-v52.sql.gz
     healthcheck:
         test: ["CMD-SHELL", "pg_isready -U ${db_user:-openacs} --dbname ${service:-projop}"]
         interval: 10s

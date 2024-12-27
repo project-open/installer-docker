@@ -14,18 +14,17 @@ RUN apt -qq install -y less git net-tools > /dev/null 2>&1
 # RUN apt -qq install -y gcc make libpq-dev autoconf automake m4 zlib1g-dev > /dev/null 2>&1
 
 
-# Copy the main configuration files from build environment to the container
-# Not sure why Gustaf created the extra nsConfig.sh
+# Copy main configuration files so we can modify them in the build environment
 COPY container/container-setup-project-open.sh /scripts/container-setup-project-open.sh
-
+COPY container/openacs-config.tcl /usr/local/ns/conf/openacs-config.tcl
 COPY container/nsConfig.sh /usr/local/ns/lib/nsConfig.sh
 
 # Copy the openacs folder with www, etc and other files
 COPY openacs /var/www/openacs
 
-# Copy the ]po[ data-model
-COPY project-open-v52.sql.gz /var/www/openacs/project-open-v52.sql.gz
+# ]po[ data-model to be loaded by container-setup-project-open.sh during first start
+COPY project-open-vanilla-v52.sql.gz /var/www/openacs/project-open-vanilla-v52.sql.gz
 
 # Copy the packages folder with the actual ]po[ code
-COPY openacs-4/packages /var/www/openacs/packages
+COPY packages-v52-oacs59 /var/www/openacs/packages
 
