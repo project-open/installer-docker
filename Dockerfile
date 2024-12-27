@@ -15,9 +15,9 @@ RUN apt -qq install -y less git net-tools > /dev/null 2>&1
 
 
 # Copy main configuration files so we can modify them in the build environment
-COPY container/container-setup-project-open.sh /scripts/container-setup-project-open.sh
-COPY container/openacs-config.tcl /usr/local/ns/conf/openacs-config.tcl
-COPY container/nsConfig.sh /usr/local/ns/lib/nsConfig.sh
+COPY config/container-setup-project-open.sh /scripts/container-setup-project-open.sh
+COPY config/openacs-config.tcl /usr/local/ns/conf/openacs-config.tcl
+COPY config/nsConfig.sh /usr/local/ns/lib/nsConfig.sh
 
 # Copy the openacs folder with www, etc and other files
 COPY openacs /var/www/openacs
