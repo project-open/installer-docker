@@ -234,8 +234,8 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
 	if [ "$model_exists" != "1" ] ; then
             echo "====== DB setup: Data-model does not exist (model_exists=${model_exists}), loading..."
 	    # Redirect STDOUT to /tmp/project-open-v52.log, so we should only see errors in the logs:
-            gunzip < project-open-vanilla-v52.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} > ${oacs_serverroot}/import.project-open-v52.log
-	    # gunzip < project-open-vanilla-v52.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name}
+            gunzip < pg_dump.vanilla.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name} > ${oacs_serverroot}/import.project-open-v52.log
+	    # gunzip < pg_dump.vanilla.sql.gz | PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} -d ${oacs_db_name}
 	    
 	else
             echo "====== DB setup: Data-model already exists (model_exists=${model_exists})"

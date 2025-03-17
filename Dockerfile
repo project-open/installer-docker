@@ -9,6 +9,7 @@
 FROM gustafn/openacs:latest-bookworm
 
 # Install some basic tools
+RUN apt -qq update > /dev/null 2>&1
 RUN apt -qq install -y less git net-tools > /dev/null 2>&1
 # RUN apt -qq install -y emacs-nox file iproute2 iputils-ping procps poppler-utils imagemagick
 # RUN apt -qq install -y gcc make libpq-dev autoconf automake m4 zlib1g-dev > /dev/null 2>&1
@@ -23,8 +24,8 @@ COPY config/nsConfig.sh /usr/local/ns/lib/nsConfig.sh
 COPY openacs /var/www/openacs
 
 # ]po[ data-model to be loaded by container-setup-project-open.sh during first start
-COPY project-open-vanilla-v52.sql.gz /var/www/openacs/project-open-vanilla-v52.sql.gz
+COPY installer-linux/pg_dump.vanilla.sql.gz /var/www/openacs/pg_dump.vanilla.sql.gz
 
 # Copy the packages folder with the actual ]po[ code
-COPY packages-v52-oacs59 /var/www/openacs/packages
+COPY packages /var/www/openacs/packages
 
