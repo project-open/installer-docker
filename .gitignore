@@ -1,2 +1,6 @@
 *~
+bin/
 garbage/
+installer-linux/
+openacs/
+packages/

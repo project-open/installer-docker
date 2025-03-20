@@ -7,31 +7,32 @@
 # ------------------------------------------------------------------
 
 CURPWD=$PWD
-echo "===== Starting in folder: $CURPWD"
+echo "===== ================================================"
+echo "===== build.bash: Starting in folder: $CURPWD"
+echo "===== ================================================"
+echo "===== "
 
 echo "===== Getting the ]project-open[ installer frame"
-echo "git clone https://gitlab.project-open.net/project-open/installer-linux.git"
+echo "===== cd $CURPWD"
+cd $CURPWD
+echo "===== git clone https://gitlab.project-open.net/project-open/installer-linux.git"
 git clone https://gitlab.project-open.net/project-open/installer-linux.git
-
-
+echo "===== cd installer-linux"
+cd installer-linux
+git pull
 
 
 echo "===== Getting the ]project-open[ source code"
-echo "git clone https://gitlab.project-open.net/project-open/packages.git"
+echo "===== cd $CURPWD"
+cd $CURPWD
+echo "===== git clone https://gitlab.project-open.net/project-open/packages.git"
 git clone https://gitlab.project-open.net/project-open/packages.git
-
-echo "cd packages"
+echo "===== cd packages"
 cd packages
-
-echo "git submodule update --recursive --init"
+echo "===== git pull"
+git pull
+echo "===== git submodule update --recursive --init"
 git submodule update --recursive --init
-
-echo "cd $CURPWD"
+echo "===== cd $CURPWD"
 cd $CURPWD
 
-
-
-
-echo "===== Starting docker build process"
-echo "docker compose up"
-docker compose up

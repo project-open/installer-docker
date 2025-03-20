@@ -1,32 +1,48 @@
 ]project-open[ Installer
+========================
 
-Access PostgreSQL psql:
-	PGPASSWORD=<secret> docker exec -it project-open-v52-postgres-1 psql -U projop openacs
+This is a cheat sheet for Docker commands needed
+to create the ]po[ environment
+
+
+]po[ Operations
+---------------
+
+Run PostgreSQL "psql" to access the database:
+	docker exec -it project-open-v52-postgres-1 psql -U projop openacs
 
 Access ]po[ shell:
 	docker exec -it project-open-v52-projop-1 /bin/bash
 
 
 
-
 Docker Compose
-==============
+--------------
 
-Install:
+Docker installation:
 	apm install docker
 	apt install docker-compose-v2
 
 
-Basic Operation:
+Basic operation:
+        docker compose build --no-cache (re-create from scratch)
 	docker compose up
 	docker compose -f filename.yaml up
 	docker compose down
 	docker compose logs
 	docker compose ps/ls
 
+Cleanup:
+	docker compose down
+        docker builder prune -f
+	docker image rm project-open-v52-projop
+	docker volume rm project-open-v52_db_data
+	docker volume rm project-open-v52_oacs_data
+	docker image prune -f
+
 
 Docker
-======
+------
 
 docker ps
 docker ps --all
