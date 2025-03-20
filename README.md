@@ -2,7 +2,8 @@
 ==========================
 
 This Docker installer is one of the three official installers
-for ]project-open[, for more information please see:
+for ]project-open[. For information on the official VMware
+distribution and the installers for Windows and Linux please see:
 https://www.project-open.net/en/list-installers
 
 Requirements
@@ -25,24 +26,6 @@ Please clone the Docker installer GitHub repo to a local directory.
 git clone https://github.com/project-open/installer-docker.git
 ```
 
-You will get a directory structure similar to the one below:
-
-<pre>
-installer-docker/
-    bin
-    config
-    installer-linux
-    packages
-</pre>
-... with the following files on the top level:
-
-- build.bash
-- clear.bash
-- compose.yaml
-- Dockerfile
-- README.md
-- ROADMAP.md
-
 Building the System
 -------------------
 
@@ -51,10 +34,16 @@ start with the "build.bash" script:
 
 ```bash
 $ ./build.bash
+```
+
+This will clone two additional GitHub repos "installer-linux" and "packages".
+After that you can start the actual process with:
+
+```bash
 $ docker compose up
 ```
 
-This process may take between 1 and 60 minutes, depending on your hardware.
+This may take between 1 and 60 minutes, depending on your hardware.
 
 As a result you should see debugging output from two different containers,
 "postgresql-1" and "projop-1". Please open a 2nd shell and check the running containers:
@@ -77,13 +66,13 @@ After playing around with ]po[ you can stop the installation:
 $ docker compose down
 ```
 
-To start again:
+To start again please use:
 
 ```bash
 $ docker compose up
 ```
 
-And to remove the images (but not the source):
+To remove the images completely and to start over (but not the source code):
 
 ```bash
 $ ./clean.bash
@@ -92,6 +81,6 @@ $ ./clean.bash
 Issues and Support
 ------------------
 
-Please see the Issues section of the Docker installer:
+Please see the Issues section of the Docker installer:<br>
 https://github.com/project-open/installer-docker/issues
 
