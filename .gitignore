@@ -1,6 +1,10 @@
 *~
+compose-up.log
+
+
 bin/
 garbage/
 installer-linux/
-openacs/
 packages/
+
+# openacs/
