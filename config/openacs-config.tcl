@@ -6,7 +6,7 @@
 # Two servers with default settings cannot run on the same host
 #
 ######################################################################
-ns_log notice "nsd.tcl: starting to read configuration file..."
+ns_log notice "nsd.tcl: starting config file in installer-docker/config/openacs-config.tcl ..."
 
 #---------------------------------------------------------------------
 # Port settings:
