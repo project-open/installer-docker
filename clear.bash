@@ -6,6 +6,10 @@
 # Released under MIT license
 # ------------------------------------------------------------------
 
+# Stop and delete all active containers
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+
 docker container rm openacs-naviserver-1
 docker container rm openacs-postgres-1
 docker container rm project-open-v52-naviserver-1
@@ -14,7 +18,8 @@ docker container rm project-open-v52-postgres-1
 # docker container prune --force
 
 docker image rm project-open-v52-projop
-
+docker image rm installer-docker-projop -f
+docker image rm postgres -f
 
 docker volume rm --force openacs_db_data
 docker volume rm --force openacs_oacs_data
