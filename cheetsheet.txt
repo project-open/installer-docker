@@ -25,7 +25,7 @@ Docker installation:
 
 
 Basic operation:
-        docker compose build --no-cache (re-create from scratch)
+	docker compose build --no-cache (re-create from scratch)
 	docker compose up
 	docker compose -f filename.yaml up
 	docker compose down
@@ -34,8 +34,10 @@ Basic operation:
 
 Cleanup:
 	docker compose down
-        docker builder prune -f
-	docker image rm project-open-v52-projop
+	docker builder prune -f
+	docker image rm project-open-v52-projop -f
+	docker image rm	installer-docker-projop -f
+	docker image rm	postgres -f
 	docker volume rm project-open-v52_db_data
 	docker volume rm project-open-v52_oacs_data
 	docker image prune -f
