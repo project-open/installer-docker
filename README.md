@@ -17,6 +17,25 @@ The following instructions assume that you have configured docker
 to be used as a normal user, so there is no need to become 'root'
 in order to run docker commands.
 
+### Linux Setup
+
+We use Ubuntu 24.04 Server for testing, use full disk, and I _need_ Emacs...
+```bash
+sudo apt update
+sudo apt upgrade -y
+sudo lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+sudo resize2fs /dev/ubuntu-vg/ubuntu-lv
+sudo apt -y install docker.io docker-compose emacs-nox
+```
+
+### Docker Setup
+```bash
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo usermod -aG docker $USER
+```
+... and logout and login again
+
 The Build Environment
 ---------------------
 
