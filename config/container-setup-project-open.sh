@@ -7,7 +7,7 @@
 # ------------------------------------------------------------------
 # This file is executed by docker because of the
 # command line parameters in project-open.yaml:
-#        /bin/bash /scripts/container-setup-openacs.sh \\
+#        /bin/bash /scripts/container-setup-project-open.sh \\
 #        && /usr/local/ns/bin/nsd -f -t ${nsdconfig:-/usr/local/ns/conf/openacs-config.tcl} -u nsadmin -g nsadmin 
 
 # ------------------------------------------------------------------
@@ -264,6 +264,6 @@ echo "====== Running /scripts/docker-setup.tcl, creating /script/docker-dict.tcl
 /usr/local/ns/bin/tclsh /scripts/docker-setup.tcl
 ls -ltr /scripts/
 
-echo "====== container-setup-openacs.sh finished"
+echo "====== container-setup-project-open.sh finished"
 # After this, compose.yaml will continue with the following command:
 # /usr/local/ns/bin/nsd -f -t ${nsdconfig:-/usr/local/ns/conf/openacs-config.tcl} -u nsadmin -g nsadmin
