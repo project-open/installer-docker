@@ -17,7 +17,7 @@ docker container rm project-open-v52-projop-1
 docker container rm project-open-v52-postgres-1
 # docker container prune --force
 
-docker image rm project-open-v52-projop
+docker image rm project-open-v52-projop -f
 docker image rm installer-docker-projop -f
 docker image rm postgres -f
 
@@ -25,6 +25,8 @@ docker volume rm --force openacs_db_data
 docker volume rm --force openacs_oacs_data
 docker volume rm --force project-open-v52_db_data
 docker volume rm --force project-open-v52_oacs_data
+docker volume rm --force installer-docker_db_data
+docker volume rm --force installer-docker_oacs_data
 docker volume prune --force
 
 docker builder prune --force
