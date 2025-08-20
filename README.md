@@ -19,7 +19,8 @@ in order to run docker commands.
 
 ### Linux Setup
 
-We use Ubuntu 24.04 Server for testing, use full disk, and I _need_ Emacs...
+We use Ubuntu 24.04 Server for development. The instructions below 
+extend the volume size and install Docker and Emacs.
 ```bash
 sudo apt update
 sudo apt upgrade -y
@@ -34,7 +35,7 @@ sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker $USER
 ```
-... and logout and login again
+... and logout and login again to use docker as a normal user.
 
 The Build Environment
 ---------------------
