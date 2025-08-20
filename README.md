@@ -26,7 +26,7 @@ sudo apt update
 sudo apt upgrade -y
 sudo lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
 sudo resize2fs /dev/ubuntu-vg/ubuntu-lv
-sudo apt -y install docker.io docker-compose emacs-nox
+sudo apt -y install docker.io docker-compose-v2 emacs-nox
 ```
 
 ### Docker Setup
