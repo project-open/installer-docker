@@ -11,7 +11,7 @@
 #        && /usr/local/ns/bin/nsd -f -t ${nsdconfig:-/usr/local/ns/conf/openacs-config.tcl} -u nsadmin -g nsadmin 
 
 # ------------------------------------------------------------------
-# From project-open.yaml
+# From project-open.yaml (check if still applies!)
 #      - TZ=${TZ:-Europe/Vienna}
 #      - LD_PRELOAD=${LD_PRELOAD:-}
 #      - oacs_httpport=8080
@@ -33,7 +33,7 @@
 #      - system_pkgs=${system_pkgs:-imagemagick}
 
 # ------------------------------------------------------------------
-# From .env
+# From .env (check if still applies!)
 # PSQL_PASSWORD=openacs
 # system_pkgs="imagemagick poppler-utils"
 # httpsport=8445
@@ -49,7 +49,7 @@ echo "====== container-setup-project-open.sh called"
 source /usr/local/ns/lib/nsConfig.sh
 
 # ------------------------------------------------------------------
-# from nsConfig.sh
+# from nsConfig.sh (check if still applies!)
 # build_dir="/usr/local/src"
 # ns_install_dir="/usr/local/ns"
 # version_ns=GIT
@@ -81,6 +81,8 @@ source /usr/local/ns/lib/nsConfig.sh
 
 # ------------------------------------------------------------------
 # Make sure the postgres container accepts connections
+# compose.yaml defines a dependency on Postgres, but that is not sufficient,
+# because the Postgres container may take some time to start up.
 wait_for_postgres() {
         echo "====== Wait for PG: Waiting up to a minute for PostgreSQL to become available"
 	wait_count=0
