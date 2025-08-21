@@ -1,6 +1,7 @@
 *~
 compose-up.log
-
+openacs/etc/certificate.pem
+openacs/etc/privkey.pem
 
 bin/
 garbage/
