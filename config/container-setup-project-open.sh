@@ -176,8 +176,8 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
 
     echo "====== List of ${oacs_serverroot}:"
     ls -l ${oacs_serverroot}
-    echo "====== List of ${oacs_serverroot}/packages:"
-    ls -l ${oacs_serverroot}/packages
+    # echo "====== List of ${oacs_serverroot}/packages:"
+    # ls -l ${oacs_serverroot}/packages
 
     
     # ------------------------------------------------------------------
@@ -253,7 +253,8 @@ fi
 
 
 # Show pg_tbles
-PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} ${oacs_db_name} -tAc "SELECT relname, n_live_tup FROM pg_stat_user_tables where n_live_tup > 0 ORDER BY relname;"
+# echo "====== DB setup: List of tables:"
+# PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} ${oacs_db_name} -tAc "SELECT relname, n_live_tup FROM pg_stat_user_tables where n_live_tup > 0 ORDER BY relname;"
 
 
 #
@@ -267,5 +268,6 @@ echo "====== Running /scripts/docker-setup.tcl, creating /script/docker-dict.tcl
 ls -ltr /scripts/
 
 echo "====== container-setup-project-open.sh finished"
+echo "====== The next lines are coming from NaviServer executing /usr/local/ns/conf/openacs-config.tcl"
 # After this, compose.yaml will continue with the following command:
 # /usr/local/ns/bin/nsd -f -t ${nsdconfig:-/usr/local/ns/conf/openacs-config.tcl} -u nsadmin -g nsadmin
