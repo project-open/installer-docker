@@ -40,5 +40,10 @@ cd $CURPWD
 
 
 echo "===== Creating self-signed certificate"
-openssl req -x509 -newkey rsa:4096 -keyout openacs/etc/privkey.pem -out openacs/etc/certificate.pem -sha256 -days 3650 -nodes -subj "/C=ES/ST=Catalonia/L=Barcelona/O=Project Open Business Solutions, S.L./CN=project-open-v52.project-open.net"
+openssl req -x509 -newkey rsa:4096 -keyout openacs/etc/privkey.pem -out openacs/etc/certificate.crt -sha256 -days 3650 -nodes -subj "/C=ES/ST=Catalonia/L=Barcelona/O=Project Open Business Solutions, S.L./CN=project-open-v52.project-open.net"
+cat openacs/etc/certificate.crt openacs/etc/privkey.pem > openacs/etc/certfile.pem
 
+
+echo "===== Done build"
+echo "===== "
+echo "===== You can now type 'docker compose up' to start ]po[ using Docker"

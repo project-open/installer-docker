@@ -256,6 +256,9 @@ fi
 # echo "====== DB setup: List of tables:"
 # PGPASSWORD=${db_password} psql -U ${oacs_db_user} -h ${oacs_db_host} -p ${oacs_db_port} ${oacs_db_name} -tAc "SELECT relname, n_live_tup FROM pg_stat_user_tables where n_live_tup > 0 ORDER BY relname;"
 
+echo "====== Setting /usr/local/bin/dot as a link to /usr/bin/dot"
+ln -s /usr/bin/dot /usr/local/bin/dot
+
 
 #
 # Collect always the docker daemon data saved in /scripts/docker.config
