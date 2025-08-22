@@ -207,6 +207,12 @@ if [ ! -e $CONTAINER_ALREADY_STARTED ] ; then
         echo "====== DB setup: Configuration variables"
         env | sort
 
+        echo "====== DB setup: Creating /home/nsadmin/.pgpass with '$oacs_db_host:$oacs_db_port:openacs:$oacs_db_user:$db_password'"
+	mkdir -p /home/nsadmin/
+	echo "$oacs_db_host:$oacs_db_port:openacs:$oacs_db_user:$db_password" > /root/.pgpass
+	echo "$oacs_db_host:$oacs_db_port:openacs:$oacs_db_user:$db_password" > /home/nsadmin/.pgpass
+	chown -R nsadmin:nsadmin /home/nsadmin/
+	
 	# Make sure the postgres container has finished init
 	wait_for_postgres
 	

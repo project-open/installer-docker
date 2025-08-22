@@ -76,10 +76,76 @@ CONTAINER ID   IMAGE                    PORTS                                   
 </pre>
 
 Now point your favorite browser to http://localhost:8080/ and you should get the ]project-open[ login page.
-Enter with:
+Enter as a system administrator with:
 
 - Email: 'sysadmin@tigerpond.com'
 - Password: 'system'
+
+You can also enter as a manager:
+
+- Email: 'bbigboss@tigerpond.com'
+- Password: 'ben'
+
+or as a normal employee:
+
+- Email: 'lleadarch@tigerpond.com'
+- Password: 'laura'
+
+These users are provided as part of the "Tigerpond" demo company
+that is used to showcase the features of the system. In the next
+section you will learn how to adapt this system for your own
+needs.
+
+
+Configure the System
+--------------------
+
+1. Fix system pathes:
+   Please point your browser to the following URL (assuming the
+   ]po[ containers are running on your "localhost"):
+   
+   http://localhost:8080/docker-fix-path-parameters
+
+   This will modify the ]po[ filesystem paths, which are different
+   compared to a "vanilla" VM.
+   You should see something about "Fix path parameters for Docker".
+   Now you have to restart Docker.
+
+2. System Configuration Wizard:
+   Please work though the System Configuration Wizard, which is the
+   only functionality available on a fresh system.
+   This wizard will ask for your business sector etc. and disable
+   functionality you probably don't need.
+
+3. Interactive Administration Guide:
+   Please work through the "Interactive Administration Guide":
+   This guide is visible on the "Home" tab only for system administrators.
+   Please expand the blue arrows to the left of "Simplify Your System".
+
+4. Configure certificates:
+   The HTTPS port on localhost is by default 8443, the default installation
+   uses a self-signed certificate.
+   
+   Once your configuration has been set up, you will need SSL certificates.
+   The easiest way to activate a real certificate.pem (PEM format with
+   certificate and private key) is to manually copy it into the container:
+   ```bash
+   docker cp certificate.pem installer-docker-projop-1:/var/www/openacs/etc/certfile.pem
+   ```
+   After that please restart the server.
+
+   In addition to the certificate, you will need to set the parameter
+   UtilCurrentLocationRedirect to "https://server" (no trailing "/") in
+   http://localhost:8080/intranet/admin/parameters/
+
+5. Backup:
+   It is sufficient to backup the container setup once.
+   However, the docker volumes require daily backups with the container down.
+
+
+
+Other actions
+-------------
 
 After playing around with ]po[ you can stop the installation:
 
