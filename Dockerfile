@@ -25,6 +25,9 @@ COPY config/nsConfig.sh /usr/local/ns/lib/nsConfig.sh
 # Copy the openacs folder with www, etc and other files
 COPY openacs /var/www/openacs
 
+# Copy ]po[ filestorage for templates, backup and files per project
+COPY installer-linux/filestorage /var/www/openacs/
+
 # ]po[ data-model to be loaded by container-setup-project-open.sh during first start
 COPY installer-linux/pg_dump.vanilla.sql.gz /var/www/openacs/pg_dump.vanilla.sql.gz
 

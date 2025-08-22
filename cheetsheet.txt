@@ -9,7 +9,7 @@ to create the ]po[ environment
 ---------------
 
 Run PostgreSQL "psql" to access the database:
-	docker exec -it project-open-v52-postgres-1 psql -U projop openacs
+	docker exec -it installer-docker-postgres-1 psql -U projop openacs
 
 Access ]po[ shell:
 	docker exec -it project-open-v52-projop-1 /bin/bash
@@ -22,7 +22,6 @@ Docker Compose
 Docker installation:
 	apm install docker
 	apt install docker-compose-v2
-
 
 Basic operation:
 	docker compose build --no-cache (re-create from scratch)
@@ -43,36 +42,22 @@ Cleanup:
 	docker image prune -f
 
 
-Docker
-------
 
-docker ps
-docker ps --all
-docker images
-docker pull postgresql:17.2
-docker top <name> - List processes in VM
-
-docker network ls - Show network
-
-Execute command in a running container:
-	docker exec -it mycontainer sh
-	docker exec -it mycontainer sh -c "pwd"
-
-docker container attach
-
-
-Debugging Docker
+Naviserver Image
 ================
 
-docker container ls --all
-docker logs <container>
-docker stats <container>
-docker exec -it <container> /bin/bash
-docker exec -it root-naviserver-1 /bin/bash
-
+Debugging:
+	docker exec -it installer-docker-projop-1 /bin/bash	# Run bash in container
+	docker top installer-docker-projop-1	  		# List processes in VM
+	docker ps --all						# Check for stopped containers
+	docker network ls					# Show network
+	docker logs installer-docker-projop-1
+	docker stats installer-docker-projop-1
+	
 Copy file from VM to host:
 	docker cp <containerId>:/file/path/within/container /host/path/target
-	docker cp project-open-v52-naviserver-1:/scripts/container-setup-openacs.sh .
+	docker cp installer-docker-projop-1:/scripts/container-setup-openacs.sh .
+	docker cp packages/acs-tcl/tcl/utilities-procs.tcl installer-docker-projop-1:/var/www/openacs/packages/acs-tcl/tcl/
 
 
 
@@ -99,18 +84,6 @@ NGINX Image
 docker pull nginx:latest
 docker run --name mynginx -d -p 80:80 nginx
 ufw allow 80/tcp
-
-
-Naviserver Image
-================
-
-docker run -d --net=host --name myns gustafn/naviserver-pg
-
-
-OpenACS Image
-=============
-
-
 
 
 

@@ -75,7 +75,8 @@ CONTAINER ID   IMAGE                    PORTS                                   
 57cba401208e   postgres:latest          5432/tcp                                          project-open-v52-postgres-1
 </pre>
 
-Now point your favorite browser to http://localhost:8080/ and you should get the ]project-open[ login page. Enter with:
+Now point your favorite browser to http://localhost:8080/ and you should get the ]project-open[ login page.
+Enter with:
 
 - Email: 'sysadmin@tigerpond.com'
 - Password: 'system'
