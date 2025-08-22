@@ -10,8 +10,10 @@ FROM gustafn/openacs:latest-bookworm
 
 # Install some basic tools
 RUN apt -qq update > /dev/null 2>&1
-RUN apt -qq install -y less git net-tools procps > /dev/null 2>&1
-# RUN apt -qq install -y emacs-nox file iproute2 iputils-ping procps poppler-utils imagemagick
+RUN apt -qq install -y less git apt-utils net-tools procps imagemagick-6.q16 graphviz > /dev/null 2>&1
+
+# Install more optional packages for development and debugging
+RUN apt -qq install -y emacs-nox file iproute2 iputils-ping procps poppler-utils imagemagick > /dev/null 2>&1
 # RUN apt -qq install -y gcc make libpq-dev autoconf automake m4 zlib1g-dev > /dev/null 2>&1
 
 
