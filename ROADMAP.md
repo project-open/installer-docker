@@ -15,6 +15,10 @@ ToDo:
   Started to modify intranet-core/www/admin/backup/pg_dump.tcl
   to work with ~/.pgpass 
 
+- Copy a database backup of ubuntu24 to GIT repo pg_dump.vanilla.sql.gz,
+  as it has updated package versions and the portlets of
+  intranet-reporting-indicators are removed.
+   
 - Release a new version of packages.git repo with the new
   versions of acs-tcl and other packages.
   Then clean the packages created by build.bash and re-run

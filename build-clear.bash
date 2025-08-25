@@ -29,8 +29,15 @@ rm -r -f packages
 
 echo "===== cd $CURPWD"
 cd $CURPWD
+echo "===== rm -f compose-up.log"
+rm -f compose-up.log
+echo "===== rm -f openacs/etc/privkey.pem"
 rm -f openacs/etc/privkey.pem
+echo "===== rm -f openacs/etc/certificate.crt"
 rm -f openacs/etc/certificate.crt
-rm -f openacs/etc/certfile.pem
+
+
+echo "===== git restore openacs/etc/certfile.pem"
+git restore openacs/etc/certfile.pem
 
 echo "===== Done build-clear"
