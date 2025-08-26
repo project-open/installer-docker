@@ -12,8 +12,7 @@ Run PostgreSQL "psql" to access the database:
 	docker exec -it installer-docker-postgres-1 psql -U projop openacs
 
 Access ]po[ shell:
-	docker exec -it project-open-v52-projop-1 /bin/bash
-
+	docker exec -it installer-docker-projop-1 /bin/bash
 
 
 Docker Compose
