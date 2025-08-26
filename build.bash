@@ -33,7 +33,8 @@ echo "===== git pull"
 git pull
 echo "===== git submodule update --recursive --init"
 git submodule update --recursive --init
-
+echo "===== git submodule foreach git pull origin master"
+git submodule foreach git pull origin master
 
 echo "===== cd $CURPWD"
 cd $CURPWD
