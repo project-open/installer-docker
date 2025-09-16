@@ -4,6 +4,7 @@ openacs/etc/certificate.crt
 openacs/etc/certfile.pem
 openacs/etc/privkey.pem
 
+bin
 bin/
 garbage/
 installer-linux/

@@ -13,7 +13,7 @@ RUN apt -qq update > /dev/null 2>&1
 RUN apt -qq install -y less git apt-utils net-tools procps imagemagick-6.q16 graphviz > /dev/null 2>&1
 
 # Install more optional packages for development and debugging
-RUN apt -qq install -y emacs-nox file iproute2 iputils-ping procps poppler-utils imagemagick > /dev/null 2>&1
+RUN apt -qq install -y emacs-nox file iproute2 iputils-ping procps poppler-utils > /dev/null 2>&1
 # RUN apt -qq install -y gcc make libpq-dev autoconf automake m4 zlib1g-dev > /dev/null 2>&1
 
 
@@ -26,7 +26,7 @@ COPY config/nsConfig.sh /usr/local/ns/lib/nsConfig.sh
 COPY openacs /var/www/openacs
 
 # Copy ]po[ filestorage for templates, backup and files per project
-COPY installer-linux/filestorage /var/www/openacs/
+COPY installer-linux/filestorage /var/www/openacs/filestorage
 
 # ]po[ data-model to be loaded by container-setup-project-open.sh during first start
 COPY installer-linux/pg_dump.vanilla.sql.gz /var/www/openacs/pg_dump.vanilla.sql.gz
